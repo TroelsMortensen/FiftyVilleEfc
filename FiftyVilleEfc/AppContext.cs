@@ -12,6 +12,8 @@ public class AppContext : DbContext
     public DbSet<Person> People => Set<Person>();
 
     public DbSet<Interview> Interviews => Set<Interview>();
+
+    public DbSet<CourthouseSecurityLog> Logs => Set<CourthouseSecurityLog>();
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -43,13 +45,23 @@ public class AppContext : DbContext
         {
             builder.HasIndex(person => person.PassportNumber)
                 .IsUnique();
+
+            builder.HasIndex(person => person.LicensePlate)
+                .IsUnique();
             
             builder.HasMany<Passenger>(person => person.Flights)
                 .WithOne(passenger => passenger.Person)
                 .HasForeignKey(passenger => passenger.PassportNumber)
                 .HasPrincipalKey(person => person.PassportNumber);
+
+            builder.HasMany<CourthouseSecurityLog>(person => person.Logs)
+                .WithOne(log => log.Person)
+                .HasForeignKey(log => log.LicensePlate)
+                .HasPrincipalKey(person => person.LicensePlate);
         });
 
+        
+        
         // modelBuilder.Entity<Flight>(builder =>
         // {
         //     
