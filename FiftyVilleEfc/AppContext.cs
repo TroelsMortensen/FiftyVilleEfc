@@ -41,7 +41,7 @@ public class AppContext : DbContext
             builder.HasIndex(person => person.PassportNumber)
                 .IsUnique();
             
-            builder.HasMany<Passenger>(person => person.Passengers)
+            builder.HasMany<Passenger>(person => person.Flights)
                 .WithOne(passenger => passenger.Person)
                 .HasForeignKey(passenger => passenger.PassportNumber)
                 .HasPrincipalKey(person => person.PassportNumber);

@@ -12,5 +12,5 @@ public class Person
 
     public string LicensePlate { get; set; }
 
-    public List<Passenger> Passengers { get; set; }
+    public List<Passenger> Flights { get; set; }
 }
