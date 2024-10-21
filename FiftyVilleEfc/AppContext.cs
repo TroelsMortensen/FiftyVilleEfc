@@ -8,7 +8,8 @@ public class AppContext : DbContext
 
     public DbSet<Airport> Airports => Set<Airport>();
     public DbSet<Flight> Flights => Set<Flight>();
-    
+    public DbSet<Passenger> Passengers => Set<Passenger>();
+    public DbSet<Person> People => Set<Person>();
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
