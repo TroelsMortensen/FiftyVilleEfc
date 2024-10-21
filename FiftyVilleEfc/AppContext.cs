@@ -13,7 +13,7 @@ public class AppContext : DbContext
 
     public DbSet<Interview> Interviews => Set<Interview>();
 
-    public DbSet<CourthouseSecurityLog> Logs => Set<CourthouseSecurityLog>();
+    public DbSet<CourthouseSecurityLog> CourthouseSecurityLogs => Set<CourthouseSecurityLog>();
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
