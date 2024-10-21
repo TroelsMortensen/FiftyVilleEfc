@@ -10,6 +10,8 @@ public class AppContext : DbContext
     public DbSet<Flight> Flights => Set<Flight>();
     public DbSet<Passenger> Passengers => Set<Passenger>();
     public DbSet<Person> People => Set<Person>();
+
+    public DbSet<Interview> Interviews => Set<Interview>();
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
