@@ -34,7 +34,7 @@ public class AppContext : DbContext
         modelBuilder.Entity<BankAccount>(ConfigureBankAccount);
     }
 
-    private void ConfigureBankAccount(EntityTypeBuilder<BankAccount> builder)
+    private static void ConfigureBankAccount(EntityTypeBuilder<BankAccount> builder)
     {
         builder.HasKey(ba => ba.AccountNumber);
 
