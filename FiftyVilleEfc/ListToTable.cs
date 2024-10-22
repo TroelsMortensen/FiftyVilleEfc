@@ -78,22 +78,16 @@ public static class ListToTable
     }
 
     private static string PadWithEmptySpace(string rowItem, int numOfSpaces)
-    {
-        string pad = "";
-        for (int i = 0; i <= numOfSpaces; i++)
-        {
-            pad += " ";
-        }
+        => rowItem + Enumerable.Range(0, numOfSpaces + 1)
+            .Select(_ => " ")
+            .Aggregate((acc, input) => acc + input);
 
-        return rowItem + pad;
-    }
-
-    private static Dictionary<string, int> CalculateColumnWidths<T>(IEnumerable<T> list, ImmutableArray<PropertyInfo> properties)
+    private static Dictionary<string, int> CalculateColumnWidths<T>(IEnumerable<T> elements, ImmutableArray<PropertyInfo> properties)
         => properties.Select(
                 prop =>
                 (
                     Name: prop.Name,
-                    Length: FindMaxColumnWidth(list, prop)
+                    Length: FindMaxColumnWidth(elements, prop)
                 ))
             .ToDictionary(tuple => tuple.Name, tuple => tuple.Length);
 
@@ -131,4 +125,10 @@ public static class ListToTable
 
     private static Dictionary<string, int> CalculateHeaderWidths<T>(ImmutableArray<PropertyInfo> properties)
         => properties.ToDictionary(propInfo => propInfo.Name, propInfo => propInfo.Name.Length);
+}
+
+public static class UtilExtensions
+{
+    public static string StringJoin(this IEnumerable<string> list, char separator)
+        => string.Join(separator, list);
 }
