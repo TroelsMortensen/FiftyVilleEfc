@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -6,11 +7,12 @@ namespace FiftyVilleEfc;
 
 public static class ListToTable
 {
-    public static string Format<T>(IEnumerable<T> list)
+    public static string Format<T>(IEnumerable<T> input)
     {
-        PropertyInfo[] properties = typeof(T).GetProperties().Where(info =>
-            info.PropertyType.IsValueType || info.PropertyType.IsPrimitive || info.PropertyType == typeof(string)).ToArray();
-        Dictionary<string, int> columnLengths = InitializeInfo(list, properties);
+        List<T> elements = input.ToList();
+        ImmutableArray<PropertyInfo> properties = ExtractPropertiesFromElementType<T>();
+        Dictionary<string, int> columnLengths = CalculateColumnWidths(elements, properties);
+
         string tableHeader = CreateTableHeader(properties, columnLengths);
 
 
@@ -23,17 +25,25 @@ public static class ListToTable
         }
 
         tableHeader += "\n" + bottom;
-        string table = CreateTable(list, tableHeader, properties, columnLengths);
+        string table = CreateTable(elements, tableHeader, properties, columnLengths);
 
         return "\n" + top + "\n"
                + table + "\n"
                + bottom + "\n";
     }
 
+    private static ImmutableArray<PropertyInfo> ExtractPropertiesFromElementType<T>()
+        => typeof(T).GetProperties()
+            .Where(info =>
+                info.PropertyType.IsValueType
+                || info.PropertyType.IsPrimitive
+                || info.PropertyType == typeof(string))
+            .ToImmutableArray();
+
     private static string CreateTable<T>(
         IEnumerable<T> list,
         string tableHeader,
-        PropertyInfo[] properties,
+        ImmutableArray<PropertyInfo> properties,
         Dictionary<string, int> columnLengths
     )
     {
@@ -78,6 +88,24 @@ public static class ListToTable
         return rowItem + pad;
     }
 
+    private static Dictionary<string, int> CalculateColumnWidths<T>(IEnumerable<T> list, ImmutableArray<PropertyInfo> properties)
+        => properties.Select(
+                prop =>
+                (
+                    Name: prop.Name,
+                    Length: FindMaxColumnWidth(list, prop)
+                ))
+            .ToDictionary(tuple => tuple.Name, tuple => tuple.Length);
+
+    private static int FindMaxColumnWidth<T>(IEnumerable<T> list, PropertyInfo prop)
+        => Math.Max(
+            prop.Name.Length,
+            list.Max(element => PropertyNameLengthOrZero(prop, element))
+        );
+
+    private static int PropertyNameLengthOrZero<T>(PropertyInfo prop, T element)
+        => prop.GetValue(element)?.ToString()?.Length ?? 0;
+
     private static string CreateTableHeader(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths)
     {
         string tableHeader = "";
@@ -96,35 +124,11 @@ public static class ListToTable
         return tableHeader;
     }
 
-    private static Dictionary<string, int> InitializeInfo<T>(IEnumerable<T> list, PropertyInfo[] properties)
-    {
-        Dictionary<string, int> columnLengths = InitializeWithHeaderLengths<T>(properties);
-
-        // Finding column lengths
-        foreach (T item in list)
-        {
-            foreach (PropertyInfo prop in properties)
-            {
-                if (prop.GetValue(item) == null)
-                {
-                    continue;
-                }
-
-                columnLengths[prop.Name] = Math.Max(
-                    columnLengths[prop.Name],
-                    GetPropValueLength(prop, item)
-                );
-            }
-        }
-
-        return columnLengths;
-    }
-
     private static int GetPropValueLength<T>(PropertyInfo prop, T item)
         => prop.GetValue(item) is null ? 0
             : prop.GetValue(item)!.ToString() is null ? 0
             : prop.GetValue(item)!.ToString()!.Length;
 
-    private static Dictionary<string, int> InitializeWithHeaderLengths<T>(PropertyInfo[] properties)
+    private static Dictionary<string, int> CalculateHeaderWidths<T>(ImmutableArray<PropertyInfo> properties)
         => properties.ToDictionary(propInfo => propInfo.Name, propInfo => propInfo.Name.Length);
 }
