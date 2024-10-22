@@ -19,4 +19,6 @@ public class Person
     public List<PhoneCall> PhoneCalls { get; set; }
     
     public List<PhoneCall> ReceiveCalls { get; set; }
+    
+    public BankAccount? BankAccount { get; set; }
 }
