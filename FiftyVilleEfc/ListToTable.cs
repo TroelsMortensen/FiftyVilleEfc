@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using Xunit.Abstractions;
 
 namespace FiftyVilleEfc;
 
@@ -6,7 +8,8 @@ public static class ListToTable
 {
     public static string Format<T>(IEnumerable<T> list)
     {
-        PropertyInfo[] properties = typeof(T).GetProperties();
+        PropertyInfo[] properties = typeof(T).GetProperties().Where(info =>
+            info.PropertyType.IsValueType || info.PropertyType.IsPrimitive || info.PropertyType == typeof(string)).ToArray();
         Dictionary<string, int> columnLengths = InitializeInfo(list, properties);
         string tableHeader = CreateTableHeader(properties, columnLengths);
 
@@ -19,15 +22,12 @@ public static class ListToTable
             bottom += "-";
         }
 
-        tableHeader += bottom;
+        tableHeader += "\n" + bottom;
         string table = CreateTable(list, tableHeader, properties, columnLengths);
 
-        return "\n" + top
-                    + table
-                    + bottom + "\n";
-        // Console.WriteLine("\n" + top);
-        // Console.WriteLine(table);
-        // Console.WriteLine(bottom + "\n");
+        return "\n" + top + "\n"
+               + table + "\n"
+               + bottom + "\n";
     }
 
     private static string CreateTable<T>(
@@ -43,8 +43,8 @@ public static class ListToTable
         string mainTable = string.Join("\n", rows);
         // foreach (T item in list)
         // {
-            // string row = CreateTableRow(properties, columnLengths, item);
-            // table += row + "\n";
+        // string row = CreateTableRow(properties, columnLengths, item);
+        // table += row + "\n";
         // }
         table += mainTable;
         // table = table.TrimEnd('\n');
@@ -69,8 +69,8 @@ public static class ListToTable
 
     private static string PadWithEmptySpace(string rowItem, int numOfSpaces)
     {
-        string pad = "";    
-        for (int i = 0; i < numOfSpaces; i++)
+        string pad = "";
+        for (int i = 0; i <= numOfSpaces; i++)
         {
             pad += " ";
         }

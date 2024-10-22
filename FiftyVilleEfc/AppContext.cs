@@ -20,7 +20,8 @@ public class AppContext : DbContext
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source = database.db");
+        optionsBuilder.UseSqlite(@"Data Source = C:\TRMO\RiderProjects\FiftyVilleEfc\FiftyVilleEfc\database.db");
+        // optionsBuilder.UseSqlite("Data Source = database.db");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
