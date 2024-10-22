@@ -15,4 +15,8 @@ public class Person
     public List<Passenger> Flights { get; set; }
     
     public List<CourthouseSecurityLog> Logs { get; set; }
+    
+    public List<PhoneCall> PhoneCalls { get; set; }
+    
+    public List<PhoneCall> ReceiveCalls { get; set; }
 }

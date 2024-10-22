@@ -1,6 +1,6 @@
 ﻿namespace FiftyVilleEfc.Entities;
 
-public partial class Interview
+public class Interview
 {
     public int Id { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace FiftyVilleEfc.Entities;
 
-public partial class CourthouseSecurityLog
+public class CourthouseSecurityLog
 {
     public int Id { get; set; }
 
