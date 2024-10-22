@@ -9,4 +9,6 @@ public class BankAccount
     public int CreationYear { get; set; }
 
     public Person Person { get; set; }
+    
+    public List<AtmTransaction> AtmTransactions { get; set; }
 }

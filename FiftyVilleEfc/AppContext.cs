@@ -16,6 +16,7 @@ public class AppContext : DbContext
     public DbSet<CrimeSceneReport> CrimeSceneReports => Set<CrimeSceneReport>();
     public DbSet<PhoneCall> PhoneCalls => Set<PhoneCall>();
     public DbSet<BankAccount> BankAccounts => Set<BankAccount>();
+    public DbSet<AtmTransaction> AtmTransactions => Set<AtmTransaction>();
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -36,6 +37,11 @@ public class AppContext : DbContext
     private void ConfigureBankAccount(EntityTypeBuilder<BankAccount> builder)
     {
         builder.HasKey(ba => ba.AccountNumber);
+
+        builder.HasMany<AtmTransaction>(ba => ba.AtmTransactions)
+            .WithOne(at => at.BankAccount)
+            .HasForeignKey(at => at.AccountNumber)
+            .HasPrincipalKey(account => account.AccountNumber);
     }
 
     private static void ConfigureAirport(EntityTypeBuilder<Airport> builder)
