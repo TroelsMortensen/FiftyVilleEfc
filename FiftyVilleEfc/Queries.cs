@@ -31,6 +31,28 @@ public class Queries(ITestOutputHelper outPutter)
 
 
     [Fact]
+    public void PrintWitnessInterviews()
+    {
+        List<Interview> list = ctx.Interviews
+            .Where(l => l.Year == 2020)
+            .Where(l => l.Month == 7)
+            .Where(l => l.Day == 28)
+            .Where(l => l.Transcript.Contains("courthouse"))
+            .ToList();
+
+        outPutter.PrintList(list);
+    }
+    /*
+        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        | Id  | Name    | Year | Month | Day | Transcript                                                                                                                                                                                                                                                                                                              |
+        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        | 161 | Ruth    | 2020 | 7     | 28  | Sometime within ten minutes of the theft, I saw the thief get into a car in the courthouse parking lot and drive away. If you have security footage from the courthouse parking lot, you might want to look for cars that left the parking lot in that time frame.                                                      |
+        | 162 | Eugene  | 2020 | 7     | 28  | I don't know the thief's name, but it was someone I recognized. Earlier this morning, before I arrived at the courthouse, I was walking by the ATM on Fifer Street and saw the thief there withdrawing some money.                                                                                                      |
+        | 163 | Raymond | 2020 | 7     | 28  | As the thief was leaving the courthouse, they called someone who talked to them for less than a minute. In the call, I heard the thief say that they were planning to take the earliest flight out of Fiftyville tomorrow. The thief then asked the person on the other end of the phone to purchase the flight ticket. |
+        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     */
+
+    [Fact]
     public void PrintCourtHouseLogs()
     {
         var list = ctx.CourthouseSecurityLogs
@@ -57,29 +79,4 @@ public class Queries(ITestOutputHelper outPutter)
         | 267 | 2020 | 7     | 28  | 10   | 23     | exit     | 0NTHK55      |
         ----------------------------------------------------------------------
      */
-
-
-    [Fact]
-    public void PrintWitnessInterviews()
-    {
-        List<Interview> list = ctx.Interviews
-            .Where(l => l.Year == 2020)
-            .Where(l => l.Month == 7)
-            .Where(l => l.Day == 28) 
-            .Where(l => l.Transcript.Contains("courthouse"))
-            .ToList();
-        
-        outPutter.PrintList(list);
-    }
-    /*
-        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        | Id  | Name    | Year | Month | Day | Transcript                                                                                                                                                                                                                                                                                                              | 
-        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        | 161 | Ruth    | 2020 | 7     | 28  | Sometime within ten minutes of the theft, I saw the thief get into a car in the courthouse parking lot and drive away. If you have security footage from the courthouse parking lot, you might want to look for cars that left the parking lot in that time frame.                                                      | 
-        | 162 | Eugene  | 2020 | 7     | 28  | I don't know the thief's name, but it was someone I recognized. Earlier this morning, before I arrived at the courthouse, I was walking by the ATM on Fifer Street and saw the thief there withdrawing some money.                                                                                                      | 
-        | 163 | Raymond | 2020 | 7     | 28  | As the thief was leaving the courthouse, they called someone who talked to them for less than a minute. In the call, I heard the thief say that they were planning to take the earliest flight out of Fiftyville tomorrow. The thief then asked the person on the other end of the phone to purchase the flight ticket. | 
-        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-     */
-    
-    
 }
