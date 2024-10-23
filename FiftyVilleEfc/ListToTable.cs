@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using Xunit.Abstractions;
+using System.Text;
 
 namespace FiftyVilleEfc;
 
@@ -9,59 +8,48 @@ public static class ListToTable
 {
     public static string Format<T>(IEnumerable<T> input)
     {
-        List<T> elements = input.ToList();
-        ImmutableArray<PropertyInfo> properties = ExtractPropertiesFromElementType<T>();
-        Dictionary<string, int> columnLengths = CalculateColumnWidths(elements, properties);
+        StringBuilder builder = new();
+        ImmutableList<T> elements = input.ToImmutableList();
 
-        string tableHeader = CreateTableHeader(properties, columnLengths);
+        ImmutableArray<PropertyInfo> properties = ExtractPropertiesFromElementType<T>();
+        Dictionary<string, int> columnWidths = CalculateColumnWidths(elements, properties);
+
+        string tableHeader = CreateTableHeader(properties, columnWidths);
 
         string dividerLine = CreateDividerLine(tableHeader.Length);
 
-        tableHeader += "\n" + dividerLine;
-        string table = CreateTable(elements, tableHeader, properties, columnLengths);
+        string table = CreateTable(elements, properties, columnWidths);
 
-        return "\n" + dividerLine + "\n"
-               + table + "\n"
-               + dividerLine + "\n";
+        builder
+            .AppendLine(dividerLine)
+            .AppendLine(tableHeader)
+            .AppendLine(dividerLine)
+            .AppendLine(table)
+            .AppendLine(dividerLine);
+
+        return builder.ToString();
     }
 
     private static string CreateDividerLine(int length)
-    {
-        string divider = Enumerable.Range(0, length)
+        => Enumerable.Range(0, length)
             .Aggregate("", (acc, _) => acc + "-");
-
-        string dividerLine = "";
-        for (int i = 0; i < length - 1; i++)
-        {
-            dividerLine += "-";
-        }
-
-        return divider;
-    }
 
     private static ImmutableArray<PropertyInfo> ExtractPropertiesFromElementType<T>()
         => typeof(T).GetProperties()
             .Where(info =>
-                info.PropertyType.IsValueType
-                || info.PropertyType.IsPrimitive
-                || info.PropertyType == typeof(string))
+                info.PropertyType.IsPrimitive ||
+                info.PropertyType == typeof(string))
             .ToImmutableArray();
 
     private static string CreateTable<T>(
-        IEnumerable<T> list,
-        string tableHeader,
+        IEnumerable<T> elements,
         ImmutableArray<PropertyInfo> properties,
         IReadOnlyDictionary<string, int> columnLengths
     )
-    {
-        string table = tableHeader + "\n";
-
-        IEnumerable<string> rows = list.Select(item => CreateSingleRow(properties, columnLengths, item));
-        string mainTable = string.Join("\n", rows);
-
-        table += mainTable;
-        return table;
-    }
+        => elements.Select(
+                element => CreateSingleRow(properties, columnLengths, element)
+            )
+            .StringJoin('\n');
 
     private static string CreateSingleRow<T>(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths, T item)
     {
@@ -84,13 +72,10 @@ public static class ListToTable
             .Aggregate("", (acc, _) => acc + " ");
 
     private static Dictionary<string, int> CalculateColumnWidths<T>(IEnumerable<T> elements, ImmutableArray<PropertyInfo> properties)
-        => properties.Select(
-                prop =>
-                (
-                    Name: prop.Name,
-                    Length: FindMaxColumnWidth(elements, prop)
-                ))
-            .ToDictionary(tuple => tuple.Name, tuple => tuple.Length);
+        => properties.ToDictionary(
+            prop => prop.Name,
+            prop => FindMaxColumnWidth(elements, prop)
+        );
 
     private static int FindMaxColumnWidth<T>(IEnumerable<T> list, PropertyInfo prop)
         => Math.Max(
@@ -99,7 +84,9 @@ public static class ListToTable
         );
 
     private static int PropertyNameLengthOrZero<T>(PropertyInfo prop, T element)
-        => prop.GetValue(element)?.ToString()?.Length ?? 0;
+        => prop.GetValue(element)?
+            .ToString()?
+            .Length ?? 0;
 
     private static string CreateTableHeader(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths)
     {
