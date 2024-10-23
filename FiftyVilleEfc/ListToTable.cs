@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Reflection;
 using System.Text;
+using Xunit.Abstractions;
 
 namespace FiftyVilleEfc;
 
@@ -93,4 +94,9 @@ public static class UtilExtensions
     public static string SuffixUpToTargetWithEmptySpaces(this string self, int numberOfSpaces)
         => self + Enumerable.Range(0, numberOfSpaces + 1 - self.Length)
             .Aggregate("", (acc, _) => acc + " ");
+
+    public static void PrintList<T>(this ITestOutputHelper self, IEnumerable<T> input)
+    {
+        self.WriteLine(ListToTable.Format(input));
+    }
 }

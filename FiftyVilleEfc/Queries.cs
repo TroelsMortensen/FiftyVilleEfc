@@ -1,23 +1,46 @@
 using FiftyVilleEfc.Entities;
+using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 using static FiftyVilleEfc.ListToTable;
 
 namespace FiftyVilleEfc;
 
-public class Queries
+public class Queries(ITestOutputHelper outPutter)
 {
-    private readonly ITestOutputHelper testOutputHelper;
-
-    public Queries(ITestOutputHelper testOutputHelper)
-    {
-        this.testOutputHelper = testOutputHelper;
-    }
-
+    // The first three Fact methods are just examples of how to setup the context, query it, and get a table printed
+    
     [Fact]
-    public void Test1()
+    public void PrintAllAirports()
     {
         using AppContext ctx = new();
         List<Airport> airports = ctx.Airports.ToList();
-        testOutputHelper.WriteLine(Format(airports));
+        outPutter.PrintList(airports);
+    }
+
+    [Fact]
+    public void PrintFirst10People()
+    {
+        using AppContext ctx = new();
+        List<Person> persons = ctx.People.Take(10).ToList();
+        outPutter.PrintList(persons);
+    }
+
+    [Fact]
+    public void First10PeopleWithBankAccount()
+    {
+        using AppContext ctx = new();
+        var list = ctx.People
+            .Include(person => person.BankAccount)
+            .Where(person => person.BankAccount != null)
+            .Take(10)
+            .Select(person => new
+            {
+                person.Id,
+                person.Name,
+                person.BankAccount!.AccountNumber,
+                person.BankAccount!.CreationYear
+            })
+            .ToList();
+        outPutter.PrintList(list);
     }
 }
