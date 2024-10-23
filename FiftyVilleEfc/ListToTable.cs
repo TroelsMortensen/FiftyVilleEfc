@@ -62,10 +62,6 @@ public static class ListToTable
             + "| "
         );
 
-    private static string PadWithEmptySpace(string rowItem, int numOfSpaces)
-        => rowItem + Enumerable.Range(0, numOfSpaces + 1)
-            .Aggregate("", (acc, _) => acc + " ");
-
     private static Dictionary<string, int> CalculateColumnWidths<T>(IEnumerable<T> elements, ImmutableArray<PropertyInfo> properties)
         => properties.ToDictionary(
             prop => prop.Name,
@@ -89,14 +85,6 @@ public static class ListToTable
                     .SuffixUpToTargetWithEmptySpaces(columnLengths[property.Name])
                 + "| "
         );
-
-    private static int GetPropValueLength<T>(PropertyInfo prop, T item)
-        => prop.GetValue(item) is null ? 0
-            : prop.GetValue(item)!.ToString() is null ? 0
-            : prop.GetValue(item)!.ToString()!.Length;
-
-    private static Dictionary<string, int> CalculateHeaderWidths<T>(ImmutableArray<PropertyInfo> properties)
-        => properties.ToDictionary(propInfo => propInfo.Name, propInfo => propInfo.Name.Length);
 }
 
 public static class UtilExtensions
