@@ -31,7 +31,7 @@ public static class ListToTable
     }
 
     private static string CreateDividerLine(int length)
-        => Enumerable.Range(0, length-1)
+        => Enumerable.Range(0, length - 1)
             .Aggregate("", (acc, _) => acc + "-");
 
     private static ImmutableArray<PropertyInfo> ExtractPropertiesFromElementType<T>()
@@ -51,21 +51,16 @@ public static class ListToTable
             )
             .StringJoin('\n');
 
-    private static string CreateSingleRow<T>(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths, T item)
-    {
-        string row = "";
-        foreach (PropertyInfo prop in properties)
-        {
-            int targetLength = columnLengths[prop.Name];
-            string rowItem = prop.GetValue(item)?.ToString() ?? "null";
-            rowItem = PadWithEmptySpace(rowItem, targetLength - rowItem.Length);
-
-            row += rowItem + "| ";
-        }
-
-        row = row.TrimEnd('|');
-        return row;
-    }
+    private static string CreateSingleRow<T>(
+        ImmutableArray<PropertyInfo> properties,
+        IReadOnlyDictionary<string, int> columnLengths,
+        T item)
+        => properties.Aggregate("", (acc, prop) =>
+            acc +
+            (prop.GetValue(item)?.ToString() ?? "null")
+            .SuffixUpToTargetWithEmptySpaces(columnLengths[prop.Name])
+            + "| "
+        );
 
     private static string PadWithEmptySpace(string rowItem, int numOfSpaces)
         => rowItem + Enumerable.Range(0, numOfSpaces + 1)
@@ -91,7 +86,7 @@ public static class ListToTable
     private static string CreateTableHeader(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths)
         => properties.Aggregate("", (acc, property) =>
             acc + property.Name
-                    .SuffixWithEmptySpaces(columnLengths[property.Name] - property.Name.Length)
+                    .SuffixUpToTargetWithEmptySpaces(columnLengths[property.Name])
                 + "| "
         );
 
@@ -109,7 +104,7 @@ public static class UtilExtensions
     public static string StringJoin(this IEnumerable<string> list, char separator)
         => string.Join(separator, list);
 
-    public static string SuffixWithEmptySpaces(this string self, int numberOfSpaces)
-        => self + Enumerable.Range(0, numberOfSpaces + 1)
+    public static string SuffixUpToTargetWithEmptySpaces(this string self, int numberOfSpaces)
+        => self + Enumerable.Range(0, numberOfSpaces + 1 - self.Length)
             .Aggregate("", (acc, _) => acc + " ");
 }
