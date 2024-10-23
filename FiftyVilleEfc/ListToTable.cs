@@ -10,7 +10,7 @@ public static class ListToTable
     {
         ImmutableList<T> elements = input.ToImmutableList();
 
-        ImmutableArray<PropertyInfo> properties = ExtractPropertiesFromElementType<T>();
+        ImmutableArray<PropertyInfo> properties = ExtractNonNavPropPropertiesFromElementType<T>();
         Dictionary<string, int> columnWidths = CalculateColumnWidths(elements, properties);
 
         string tableHeader = CreateTableHeader(properties, columnWidths);
@@ -28,16 +28,29 @@ public static class ListToTable
             .ToString();
     }
 
-    private static string CreateDividerLine(int length)
-        => Enumerable.Range(0, length - 1)
-            .Aggregate("", (acc, _) => acc + "-");
-
-    private static ImmutableArray<PropertyInfo> ExtractPropertiesFromElementType<T>()
+    private static ImmutableArray<PropertyInfo> ExtractNonNavPropPropertiesFromElementType<T>()
         => typeof(T).GetProperties()
             .Where(info =>
                 info.PropertyType.IsPrimitive ||
                 info.PropertyType == typeof(string))
             .ToImmutableArray();
+
+    private static Dictionary<string, int> CalculateColumnWidths<T>(IEnumerable<T> elements, ImmutableArray<PropertyInfo> properties)
+        => properties.ToDictionary(
+            prop => prop.Name,
+            prop => FindMaxColumnWidth(elements, prop)
+        );
+
+    private static string CreateDividerLine(int length)
+        => Enumerable.Range(0, length - 1)
+            .Aggregate("", (acc, _) => acc + "-");
+
+    private static string CreateTableHeader(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths)
+        => properties.Aggregate("| ", (acc, property) =>
+            acc + property.Name
+                    .SuffixUpToTargetWithEmptySpaces(columnLengths[property.Name])
+                + "| "
+        );
 
     private static string CreateTable<T>(
         IEnumerable<T> elements,
@@ -60,12 +73,6 @@ public static class ListToTable
             + "| "
         );
 
-    private static Dictionary<string, int> CalculateColumnWidths<T>(IEnumerable<T> elements, ImmutableArray<PropertyInfo> properties)
-        => properties.ToDictionary(
-            prop => prop.Name,
-            prop => FindMaxColumnWidth(elements, prop)
-        );
-
     private static int FindMaxColumnWidth<T>(IEnumerable<T> list, PropertyInfo prop)
         => Math.Max(
             prop.Name.Length,
@@ -76,13 +83,6 @@ public static class ListToTable
         => prop.GetValue(element)?
             .ToString()?
             .Length ?? 0;
-
-    private static string CreateTableHeader(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths)
-        => properties.Aggregate("| ", (acc, property) =>
-            acc + property.Name
-                    .SuffixUpToTargetWithEmptySpaces(columnLengths[property.Name])
-                + "| "
-        );
 }
 
 public static class UtilExtensions
