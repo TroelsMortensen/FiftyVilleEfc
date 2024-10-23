@@ -15,21 +15,28 @@ public static class ListToTable
 
         string tableHeader = CreateTableHeader(properties, columnLengths);
 
+        string dividerLine = CreateDividerLine(tableHeader.Length);
 
-        string top = "";
-        string bottom = "";
-        for (int i = 0; i < tableHeader.Length; i++)
-        {
-            top += "_";
-            bottom += "-";
-        }
-
-        tableHeader += "\n" + bottom;
+        tableHeader += "\n" + dividerLine;
         string table = CreateTable(elements, tableHeader, properties, columnLengths);
 
-        return "\n" + top + "\n"
+        return "\n" + dividerLine + "\n"
                + table + "\n"
-               + bottom + "\n";
+               + dividerLine + "\n";
+    }
+
+    private static string CreateDividerLine(int length)
+    {
+        string divider = Enumerable.Range(0, length)
+            .Aggregate("", (acc, _) => acc + "-");
+
+        string dividerLine = "";
+        for (int i = 0; i < length - 1; i++)
+        {
+            dividerLine += "-";
+        }
+
+        return divider;
     }
 
     private static ImmutableArray<PropertyInfo> ExtractPropertiesFromElementType<T>()
@@ -44,24 +51,19 @@ public static class ListToTable
         IEnumerable<T> list,
         string tableHeader,
         ImmutableArray<PropertyInfo> properties,
-        Dictionary<string, int> columnLengths
+        IReadOnlyDictionary<string, int> columnLengths
     )
     {
         string table = tableHeader + "\n";
 
-        IEnumerable<string> rows = list.Select(item => CreateTableRow(properties, columnLengths, item));
+        IEnumerable<string> rows = list.Select(item => CreateSingleRow(properties, columnLengths, item));
         string mainTable = string.Join("\n", rows);
-        // foreach (T item in list)
-        // {
-        // string row = CreateTableRow(properties, columnLengths, item);
-        // table += row + "\n";
-        // }
+
         table += mainTable;
-        // table = table.TrimEnd('\n');
         return table;
     }
 
-    private static string CreateTableRow<T>(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths, T item)
+    private static string CreateSingleRow<T>(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths, T item)
     {
         string row = "";
         foreach (PropertyInfo prop in properties)
@@ -79,8 +81,7 @@ public static class ListToTable
 
     private static string PadWithEmptySpace(string rowItem, int numOfSpaces)
         => rowItem + Enumerable.Range(0, numOfSpaces + 1)
-            .Select(_ => " ")
-            .Aggregate((acc, input) => acc + input);
+            .Aggregate("", (acc, _) => acc + " ");
 
     private static Dictionary<string, int> CalculateColumnWidths<T>(IEnumerable<T> elements, ImmutableArray<PropertyInfo> properties)
         => properties.Select(
