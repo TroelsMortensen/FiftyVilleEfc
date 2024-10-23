@@ -68,11 +68,13 @@ public static class ListToTable
         IReadOnlyDictionary<string, int> columnLengths,
         T item)
         => properties.Aggregate("| ", (acc, prop) =>
-            acc +
-            (prop.GetValue(item)?.ToString() ?? "null")
-            .SuffixUpToTargetWithEmptySpaces(columnLengths[prop.Name])
-            + "| "
+            acc + CreateSingleCell(columnLengths, item, prop)
         );
+
+    private static string CreateSingleCell<T>(IReadOnlyDictionary<string, int> columnLengths, T item, PropertyInfo prop)
+        => (prop.GetValue(item)?.ToString() ?? "null")
+           .SuffixUpToTargetWithEmptySpaces(columnLengths[prop.Name])
+           + "| ";
 
     private static int FindMaxColumnWidth<T>(IEnumerable<T> list, PropertyInfo prop)
         => Math.Max(
