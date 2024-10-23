@@ -55,7 +55,7 @@ public static class ListToTable
         ImmutableArray<PropertyInfo> properties,
         IReadOnlyDictionary<string, int> columnLengths,
         T item)
-        => properties.Aggregate("", (acc, prop) =>
+        => properties.Aggregate("| ", (acc, prop) =>
             acc +
             (prop.GetValue(item)?.ToString() ?? "null")
             .SuffixUpToTargetWithEmptySpaces(columnLengths[prop.Name])
@@ -80,7 +80,7 @@ public static class ListToTable
             .Length ?? 0;
 
     private static string CreateTableHeader(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths)
-        => properties.Aggregate("", (acc, property) =>
+        => properties.Aggregate("| ", (acc, property) =>
             acc + property.Name
                     .SuffixUpToTargetWithEmptySpaces(columnLengths[property.Name])
                 + "| "
