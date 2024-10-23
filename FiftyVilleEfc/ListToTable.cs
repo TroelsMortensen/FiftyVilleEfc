@@ -65,15 +65,15 @@ public static class ListToTable
 
     private static string CreateSingleRow<T>(
         ImmutableArray<PropertyInfo> properties,
-        IReadOnlyDictionary<string, int> columnLengths,
+        IReadOnlyDictionary<string, int> columnWidths,
         T item)
         => properties.Aggregate("| ", (acc, prop) =>
-            acc + CreateSingleCell(columnLengths, item, prop)
+            acc + CreateSingleCell(columnWidths, item, prop)
         );
 
-    private static string CreateSingleCell<T>(IReadOnlyDictionary<string, int> columnLengths, T item, PropertyInfo prop)
+    private static string CreateSingleCell<T>(IReadOnlyDictionary<string, int> columnWidths, T item, PropertyInfo prop)
         => (prop.GetValue(item)?.ToString() ?? "null")
-           .SuffixUpToTargetWithEmptySpaces(columnLengths[prop.Name])
+           .SuffixUpToTargetWithEmptySpaces(columnWidths[prop.Name])
            + "| ";
 
     private static int FindMaxColumnWidth<T>(IEnumerable<T> list, PropertyInfo prop)
