@@ -79,7 +79,7 @@ public static class ListToTable
     private static int FindMaxColumnWidth<T>(IEnumerable<T> list, PropertyInfo prop)
         => Math.Max(
             prop.Name.Length,
-            list.Max(element => PropertyNameLengthOrZero(prop, element))
+            list.Any() ? list.Max(element => PropertyNameLengthOrZero(prop, element)) : 0
         );
 
     private static int PropertyNameLengthOrZero<T>(PropertyInfo prop, T element)
