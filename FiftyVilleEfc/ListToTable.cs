@@ -8,7 +8,6 @@ public static class ListToTable
 {
     public static string Format<T>(IEnumerable<T> input)
     {
-        StringBuilder builder = new();
         ImmutableList<T> elements = input.ToImmutableList();
 
         ImmutableArray<PropertyInfo> properties = ExtractPropertiesFromElementType<T>();
@@ -20,14 +19,13 @@ public static class ListToTable
 
         string table = CreateTable(elements, properties, columnWidths);
 
-        builder
+        return new StringBuilder()
             .AppendLine(dividerLine)
             .AppendLine(tableHeader)
             .AppendLine(dividerLine)
             .AppendLine(table)
-            .AppendLine(dividerLine);
-
-        return builder.ToString();
+            .AppendLine(dividerLine)
+            .ToString();
     }
 
     private static string CreateDividerLine(int length)
