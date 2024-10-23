@@ -31,7 +31,7 @@ public static class ListToTable
     }
 
     private static string CreateDividerLine(int length)
-        => Enumerable.Range(0, length)
+        => Enumerable.Range(0, length-1)
             .Aggregate("", (acc, _) => acc + "-");
 
     private static ImmutableArray<PropertyInfo> ExtractPropertiesFromElementType<T>()
@@ -89,22 +89,11 @@ public static class ListToTable
             .Length ?? 0;
 
     private static string CreateTableHeader(IEnumerable<PropertyInfo> properties, IReadOnlyDictionary<string, int> columnLengths)
-    {
-        string tableHeader = "";
-        foreach (PropertyInfo prop in properties)
-        {
-            string headerItem = prop.Name;
-            while (headerItem.Length <= columnLengths[prop.Name])
-            {
-                headerItem += " ";
-            }
-
-            tableHeader += headerItem + "| ";
-        }
-
-        tableHeader = tableHeader.TrimEnd('|');
-        return tableHeader;
-    }
+        => properties.Aggregate("", (acc, property) =>
+            acc + property.Name
+                    .SuffixWithEmptySpaces(columnLengths[property.Name] - property.Name.Length)
+                + "| "
+        );
 
     private static int GetPropValueLength<T>(PropertyInfo prop, T item)
         => prop.GetValue(item) is null ? 0
@@ -119,4 +108,8 @@ public static class UtilExtensions
 {
     public static string StringJoin(this IEnumerable<string> list, char separator)
         => string.Join(separator, list);
+
+    public static string SuffixWithEmptySpaces(this string self, int numberOfSpaces)
+        => self + Enumerable.Range(0, numberOfSpaces + 1)
+            .Aggregate("", (acc, _) => acc + " ");
 }
