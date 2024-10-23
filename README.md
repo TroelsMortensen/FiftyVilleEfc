@@ -16,7 +16,7 @@ Most of the entities have navigation properties between them. A few entities are
 * A foreign key is marked {FK}
 * A navigation property is marked {NP}
 
-<img src="https://github.com/TroelsMortensen/FiftyVilleEfc/blob/master/FiftyVilleEfc/FiftyVilleEfc.png" alt="drawing" width="400"/>
+<img src="https://github.com/TroelsMortensen/FiftyVilleEfc/blob/master/FiftyVilleEfc/FiftyVilleEfc.png" alt="drawing" width="1000"/>
 
 ## Setup
 First, you need to go to the AppContext class, and change the data source string, so that it points to your local version of the database.db file. You will notice the path is currently to a place on my local pc.\
